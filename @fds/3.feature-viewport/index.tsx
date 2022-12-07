@@ -75,6 +75,25 @@ function Box(props: ThreeElements['mesh']) {
   )
 }
 
+function Sphere(props: ThreeElements['mesh']) {
+  const ref = useRef<THREE.Mesh>(null!)
+  const [hovered, hover] = useState(false)
+  const [clicked, click] = useState(false)
+  useFrame((state, delta) => (ref.current.rotation.x += 0.01));
+
+  return (
+    <mesh
+      {...props}
+      ref={ref}
+      scale={clicked ? 1.5 : 1}
+      onClick={(event) => click(!clicked)}
+      onPointerOver={(event) => hover(true)}
+      onPointerOut={(event) => hover(false)}>
+				<sphereGeometry />
+				<meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
+    </mesh>
+  )
+}
 
 const CameraController = () => {
   const { camera, gl } = useThree();
@@ -103,41 +122,33 @@ const CanvasContent = ({
 	isPlaying
 }: CanvasContentProps) => {
 	const {invalidate, clock, advance} = useThree();
-	// clock.autoStart = false;
-
-	useFrame(() => {
-		if(isPlaying) {
-			// clock.start();
-		} else {
-			// clock.stop();
-		}
-	}, 9999)
+	clock.autoStart = false;
 	
 
-	// useEffect(() => {
-	// 	if(isPlaying) {
-	// 		clock.start();
-	// 	} else {
-	// 		clock.stop();
-	// 	}
-	// }, [isPlaying])
+	useEffect(() => {
+		if(isPlaying) {
+			clock.start();
+		} else {
+			clock.stop();
+		}
+	}, [isPlaying])
 
-	// useEffect(() => {
-	// 		let delta = 0;
-	// 		const interval = 1/10;
-	// 		const update = () => {
-	// 				requestAnimationFrame(update);
+	useEffect(() => {
+			let delta = 0;
+			const interval = 1/60;
+			const update = () => {
+					requestAnimationFrame(update);
 					
-	// 				delta += clock.getDelta();
+					delta += clock.getDelta();
 
-	// 				if (delta > interval) {
-	// 						invalidate();
-	// 						delta = delta % interval;
-	// 				}
-	// 		}
+					if (delta > interval) {
+							invalidate();
+							delta = delta % interval;
+					}
+			}
 
-	// 		update();
-	// }, [])
+			update();
+	}, [])
 
 
 	return (
@@ -146,6 +157,7 @@ const CanvasContent = ({
 			<ambientLight />
 			<pointLight position={[10, 10, 10]} />
 			<Box position={[-1.2, 0, 0]} />
+			{/* <Sphere position={[0, 0, 0]} /> */}
 			<Box position={[1.2, 0, 0]} />
 		</>
 	)
@@ -170,7 +182,7 @@ const Viewport = ({
 				</div>
 			</ViewportToolbar>
 			<ViewportContent>
-				<CanvasEl>
+				<CanvasEl frameloop="demand">
 					<CanvasContent isPlaying={isPlaying} />
 				</CanvasEl>
 				</ViewportContent>
