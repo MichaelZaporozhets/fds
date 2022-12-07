@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
+		"jsx": "react",
     "target": "esnext",
     "module": "commonjs",
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "include": [
-      "declaration.d.ts",
-    ]
+    "forceConsistentCasingInFileNames": true
   }
 }

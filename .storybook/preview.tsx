@@ -17,7 +17,7 @@ export const parameters = {
 
 export const decorators = [
   (Story) => (
-    <div style={{ margin: '3em' }}>
+    <div style={{ margin: '0rem' }}>
       <style>
         {globals.css}
         {`

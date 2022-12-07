@@ -11,6 +11,9 @@ import Files from './assets/files.svg';
 import BuildResults from './assets/buildresults.svg';
 import Components from './assets/components.svg';
 
+import Pause from './assets/pause.svg';
+import PlayECS from './assets/playecs.svg';
+
 import EcsOutliner from './assets/ecsoutliner.svg';
 import EcsPrefab from './assets/ecsprefab.svg';
 import EcsEntity from './assets/ecsentity.svg';
@@ -53,6 +56,15 @@ const icons = {
 	files: {
 		src: Files,
 		alt: 'Files Icon'
+	},
+
+	playECS: {
+		src: PlayECS,
+		alt: 'Play ECS Execution'
+	},
+	pause: {
+		src: Pause,
+		alt: 'Pause'
 	},
 
 	// specific

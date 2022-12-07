@@ -23,7 +23,7 @@ const Window = styled.div`
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	min-height: 80vh;
+	height: 100vh;
 `;
 
 const MainWindowContents = styled.div`
@@ -39,12 +39,13 @@ const MainWindowContents = styled.div`
 
 const BottomWindowContents = styled.div`
 	height: 100%;
+	height: 20vh;
 	display: flex;
 	flex-direction: row;
 	flex-grow: 1;
-	max-height: 20vh;
+	// max-height: 20vh;
 
-	> * {
+	> * {	
 		height: auto;
 	}
 `;

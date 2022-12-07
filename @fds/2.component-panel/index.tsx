@@ -8,8 +8,8 @@ import { icons } from '../2.component-icon/icons';
 
 
 const PanelWrap = styled.div`
-	min-width: 400px;
-	min-height: 50px;
+	min-width: 300px;
+	min-height: 200px;
 	width: 480px;
 	height: 100%;
 	background: ${color.tokens.layout.PanelBackgroundDefaultColor};

@@ -11,7 +11,9 @@ const AppToolbarWrap = styled.div`
 	background: ${color.tokens.layout.PanelBackgroundDefaultColor};
 	width: 100%;
 	height: 32px;
+	min-height: 32px;
 	display: flex;
+	border-bottom: 1px solid ${color.tokens.layout.ApplicationBackgroundDefaultColor};
 `;
 
 const AppToolbar = ({
