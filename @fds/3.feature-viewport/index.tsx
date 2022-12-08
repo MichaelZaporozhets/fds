@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as THREE from 'three'
 import { createRoot } from 'react-dom/client';
-import { Canvas, useFrame, ThreeElements, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, ThreeElements, useThree, render } from '@react-three/fiber';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 
@@ -13,6 +13,7 @@ import { Panel } from '../2.component-panel';
 import { Paragraph, SmallHeading } from '../2.component-text';
 import { Tooltip } from '../2.component-tooltip';
 import { color } from '../1.foundation/color';
+import { Vector3, Vector3Tuple } from 'three';
 
 const ViewportSpace = styled.div`
 	display: flex;
@@ -55,44 +56,44 @@ interface ViewportProps {
 	className?: string
 }
 
-function Box(props: ThreeElements['mesh']) {
-  const ref = useRef<THREE.Mesh>(null!)
-  const [hovered, hover] = useState(false)
-  const [clicked, click] = useState(false)
-  useFrame((state, delta) => (ref.current.rotation.x += 0.01));
-
-  return (
-    <mesh
-      {...props}
-      ref={ref}
-      scale={clicked ? 1.5 : 1}
-      onClick={(event) => click(!clicked)}
-      onPointerOver={(event) => hover(true)}
-      onPointerOut={(event) => hover(false)}>
-				<boxGeometry args={[1, 1, 1]} />
-				<meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
-    </mesh>
-  )
+type RenderFuncProps = {
+	state: any,
+	delta: any,
+	target: THREE.Mesh
 }
 
-function Sphere(props: ThreeElements['mesh']) {
-  const ref = useRef<THREE.Mesh>(null!)
-  const [hovered, hover] = useState(false)
-  const [clicked, click] = useState(false)
-  useFrame((state, delta) => (ref.current.rotation.x += 0.01));
+type EntityProps = ThreeElements['mesh'] & {
+	type: 'Box' | 'Sphere'
+	renderState: {
+		isPlaying: boolean
+	}
+	renderFunc: ({ state, delta, target }: RenderFuncProps) => any,
+}
 
-  return (
-    <mesh
-      {...props}
-      ref={ref}
-      scale={clicked ? 1.5 : 1}
-      onClick={(event) => click(!clicked)}
-      onPointerOver={(event) => hover(true)}
-      onPointerOut={(event) => hover(false)}>
-				<sphereGeometry />
+function Entity({
+	type,
+	renderState,
+	renderFunc,
+	...props
+}: EntityProps) {
+	const ref = useRef<THREE.Mesh>(null!)
+	const [hovered, hover] = useState(false)
+	const [clicked, click] = useState(false)
+
+	useFrame((state, delta) => renderState.isPlaying && renderFunc({ state, delta, target: ref.current }));
+
+	return (
+		<mesh
+			{...props}
+			ref={ref}
+			scale={clicked ? 1.5 : 1}
+			onClick={(event) => click(!clicked)}
+			onPointerOver={(event) => hover(true)}
+			onPointerOut={(event) => hover(false)}>
+				<boxGeometry args={[1, 1, 1]} />
 				<meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
-    </mesh>
-  )
+		</mesh>
+	)
 }
 
 const CameraController = () => {
@@ -114,6 +115,21 @@ const CameraController = () => {
   return null;
 };
 
+
+const exampleEntities = [
+	{
+		type: 'Box',
+		renderFunc: ({ target }: RenderFuncProps) => (target.rotation.x += 0.01),
+		position: [-1.2, 0, 0]
+	},
+	{
+		type: 'Box',
+		renderFunc: ({ target }: RenderFuncProps) => (target.rotation.x += 0.02),
+		position: [1.2, 0, 0]
+	}
+	
+]
+
 interface CanvasContentProps {
 	isPlaying: boolean
 }
@@ -122,43 +138,26 @@ const CanvasContent = ({
 	isPlaying
 }: CanvasContentProps) => {
 	const {invalidate, clock, advance} = useThree();
-	clock.autoStart = false;
 	
-
-	useEffect(() => {
-		if(isPlaying) {
-			clock.start();
-		} else {
-			clock.stop();
-		}
-	}, [isPlaying])
-
-	useEffect(() => {
-			let delta = 0;
-			const interval = 1/60;
-			const update = () => {
-					requestAnimationFrame(update);
-					
-					delta += clock.getDelta();
-
-					if (delta > interval) {
-							invalidate();
-							delta = delta % interval;
-					}
-			}
-
-			update();
-	}, [])
-
-
 	return (
 		<>
-			<CameraController />
 			<ambientLight />
 			<pointLight position={[10, 10, 10]} />
-			<Box position={[-1.2, 0, 0]} />
-			{/* <Sphere position={[0, 0, 0]} /> */}
-			<Box position={[1.2, 0, 0]} />
+
+			{
+				exampleEntities.map((entity, index) => (
+					<Entity
+						type={entity.type as EntityProps['type']}
+						renderState={{ isPlaying: isPlaying }}
+						renderFunc={entity.renderFunc}
+						position={entity.position as Vector3Tuple}
+					/>
+				))
+			}
+
+			<Entity type='Box' renderState={{ isPlaying: isPlaying }} renderFunc={({ target }) => (target.rotation.x += 0.01)} position={[-1.2, 0, 0]} />
+			<Entity type='Box' renderState={{ isPlaying: isPlaying }} renderFunc={({ target }) => (target.rotation.x += 0.01)} position={[1.2, 0, 0]} />
+			<CameraController />
 		</>
 	)
 }
@@ -182,7 +181,7 @@ const Viewport = ({
 				</div>
 			</ViewportToolbar>
 			<ViewportContent>
-				<CanvasEl frameloop="demand">
+				<CanvasEl>
 					<CanvasContent isPlaying={isPlaying} />
 				</CanvasEl>
 				</ViewportContent>
